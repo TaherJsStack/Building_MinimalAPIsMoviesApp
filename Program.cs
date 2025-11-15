@@ -24,6 +24,8 @@ builder.Services.AddCors(options =>
 });
 
 
+builder.Services.AddOutputCache();
+
 // Services Zone - END
 
 var app = builder.Build();
@@ -31,6 +33,8 @@ var app = builder.Build();
 // Middleware Zone - START
 
 app.UseCors();
+
+app.UseOutputCache();
 
 app.MapGet("/", () => "ConfigName");
 
@@ -54,9 +58,8 @@ app.MapGet("/genres", [EnableCors(policyName:"free")] () =>
             Name = "Comedy"
         }
     };
-
     return GenresList;
-});
+}).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(10)));
 
 
 
