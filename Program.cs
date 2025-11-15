@@ -3,10 +3,26 @@ using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Services Zone - START
 
-string ConfigName = builder.Configuration.GetValue<string>("ConfigName");
+//string ConfigName = builder.Configuration.GetValue<string>("ConfigName");
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(configuration =>
+    {
+        configuration
+        .WithOrigins(builder.Configuration["AllowedOrigins"]!)
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+
+    options.AddPolicy("free", configurations =>
+    {
+        configurations.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+
+});
+
 
 // Services Zone - END
 
@@ -14,7 +30,7 @@ var app = builder.Build();
 
 // Middleware Zone - START
 
-app.MapGet("/", () => ConfigName);
+//app.MapGet("/", () => ConfigName);
 app.MapGet("/genres", () =>
 {
     var GenresList = new List<Genre>
