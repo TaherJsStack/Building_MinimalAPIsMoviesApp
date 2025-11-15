@@ -35,11 +35,11 @@ var app = builder.Build();
 
 // Middleware Zone - START
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
+//if (builder.Environment.IsDevelopment()) {
+    app.UseSwagger();
+    app.UseSwaggerUI(c => {});
+//}
 
-});
 app.UseCors();
 
 app.UseOutputCache();
