@@ -2,6 +2,7 @@ using Building_MinimalAPIsMoviesApp;
 using Building_MinimalAPIsMoviesApp.Endpoints;
 using Building_MinimalAPIsMoviesApp.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IGenresRepositories, GenresRepository>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Services Zone - END
 

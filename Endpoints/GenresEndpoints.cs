@@ -1,4 +1,6 @@
-﻿using Building_MinimalAPIsMoviesApp.Entities;
+﻿using AutoMapper;
+using Building_MinimalAPIsMoviesApp.DTOs;
+using Building_MinimalAPIsMoviesApp.Entities;
 using Building_MinimalAPIsMoviesApp.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
@@ -22,13 +24,15 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return group;
         }
 
-        static async Task<Ok<List<Genre>>> GetGenres(IGenresRepositories repository)
+        static async Task<Ok<List<GenreDTO>>> GetGenres(IGenresRepositories repository, IMapper mapper)
         {
-            var genres = await repository.GetAll(); ;
-            return TypedResults.Ok(genres);
+            var genres = await repository.GetAll();
+            //var genreDTO = genres.Select(genre => new GenreDTO { Id = genre.Id, Name = genre.Name }).ToList();
+            var genreDTO = mapper.Map<List<GenreDTO>>(genres);
+            return TypedResults.Ok(genreDTO);
         }
 
-        static async Task<Results<Ok<Genre>, NotFound>> GetById(int id, IGenresRepositories repository)
+        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById(int id, IGenresRepositories repository, IMapper mapper)
         {
             var genre = await repository.GetById(id);
 
@@ -36,29 +40,70 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             {
                 return TypedResults.NotFound();
             }
-            return TypedResults.Ok(genre);
+
+            //var genreDTO = new GenreDTO 
+            //{
+            //    Id = genre.Id,
+            //    Name = genre.Name,
+            //};
+
+            var genreDTO = mapper.Map<GenreDTO>(genre);
+            return TypedResults.Ok(genreDTO);
         }
 
-        static async Task<Created<Genre>> Create(Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore)
+        static async Task<Created<GenreDTO>> Create(
+            CreateGenreDTO createGenreDTO, 
+            IGenresRepositories repository, 
+            IOutputCacheStore outputCacheStore,
+            IMapper mapper
+            )
         {
+            //var genre = new Genre
+            //{
+            //    Name = createGenreDTO.Name,
+            //};
+            var genre = mapper.Map<Genre>(createGenreDTO);
             var id = await repository.Create(genre);
             await outputCacheStore.EvictByTagAsync("genres-get", default);
-            return TypedResults.Created($"/geners/{id}", genre);
+            //var genreDTO = new GenreDTO
+            //{
+            //    Id = genre.Id,
+            //    Name = genre.Name,
+            //};
+            var genreDTO = mapper.Map<GenreDTO>(genre);
+            return TypedResults.Created($"/geners/{id}", genreDTO);
         }
 
-        static async Task<Results<NotFound, NoContent>> Update(int id, Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore)
+        static async Task<Results<NotFound, NoContent>> Update(
+            int id, 
+            CreateGenreDTO createGenreDTO, 
+            IGenresRepositories repository, 
+            IOutputCacheStore outputCacheStore,
+            IMapper mapper
+            )
         {
             var exists = await repository.Exists(id);
             if (!exists)
             {
                 return TypedResults.NotFound();
             }
+            //var genre = new Genre
+            //{
+            //    Id = id,
+            //    Name = createGenreDTO.Name,
+            //};
+            var genre = mapper.Map<Genre>(createGenreDTO);
+            genre.Id = id;
+
             await repository.Update(genre);
             await outputCacheStore.EvictByTagAsync("genres-get", default);
             return TypedResults.NoContent();
         }
 
-        static async Task<Results<NotFound, NoContent>> Delete(int id, IGenresRepositories repository, IOutputCacheStore outputCacheStore)
+        static async Task<Results<NotFound, NoContent>> Delete(
+            int id, 
+            IGenresRepositories repository, 
+            IOutputCacheStore outputCacheStore)
         {
             var exists = await repository.Exists(id);
             if (!exists)
