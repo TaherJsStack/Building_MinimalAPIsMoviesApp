@@ -58,12 +58,14 @@ app.UseOutputCache();
 
 app.MapGet("/", () => "ConfigName");
 
-app.MapGet("/genres", [EnableCors(policyName:"free")] async (IGenresRepositories repository) =>
+var genresEndpoints = app.MapGroup("/genres");
+
+genresEndpoints.MapGet("/", [EnableCors(policyName:"free")] async (IGenresRepositories repository) =>
 {
     return await repository.GetAll();
 }).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("genres-get"));
 
-app.MapGet("/geners/{id:int}", [EnableCors(policyName: "free")] async (int id, IGenresRepositories repository) =>
+genresEndpoints.MapGet("/{id:int}", [EnableCors(policyName: "free")] async (int id, IGenresRepositories repository) =>
 {
     var genre = await repository.GetById(id); 
     
@@ -74,15 +76,14 @@ app.MapGet("/geners/{id:int}", [EnableCors(policyName: "free")] async (int id, I
     return Results.Ok(genre); 
 }).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(10)));
 
-
-app.MapPost("/genres", async (Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
+genresEndpoints.MapPost("/", async (Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
 {
     var id = await repository.Create(genre);
     await outputCacheStore.EvictByTagAsync("genres-get", default);
     return Results.Created($"/geners/{id}", genre);
 });
 
-app.MapPut("/genres/{id}", async (int id, Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
+genresEndpoints.MapPut("/{id:int}", async (int id, Genre genre, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
 {
     var exists = await repository.Exists(id);
     if (!exists)
@@ -95,7 +96,7 @@ app.MapPut("/genres/{id}", async (int id, Genre genre, IGenresRepositories repos
     return Results.NoContent();
 });
 
-app.MapDelete("/genres/{id:int}", async (int id, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
+genresEndpoints.MapDelete("/{id:int}", async (int id, IGenresRepositories repository, IOutputCacheStore outputCacheStore) =>
 {
     var exists = await repository.Exists(id);
     if (!exists)
