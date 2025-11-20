@@ -26,7 +26,7 @@ namespace Building_MinimalAPIsMoviesApp
             modelBuilder
             .Entity<Actor>()
             .Property(p => p.Picture)
-            .IsUnicode();
+            .IsUnicode(false);
 
         }
 
