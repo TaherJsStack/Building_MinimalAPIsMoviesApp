@@ -2,7 +2,7 @@
 
 namespace Building_MinimalAPIsMoviesApp.Repositories
 {
-    public interface IGenresRepositories
+    public interface IGenresRepository
     {
         Task<int> Create(Genre genre);
         Task<Genre?> GetById(int id);
