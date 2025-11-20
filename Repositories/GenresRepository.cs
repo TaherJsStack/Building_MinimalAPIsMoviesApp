@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Building_MinimalAPIsMoviesApp.Repositories
 {
-    public class GenresRepository : IGenresRepositories
+    public class GenresRepository : IGenresRepository
     {
         private readonly ApplicationDBContext _context;
 

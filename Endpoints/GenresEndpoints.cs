@@ -24,7 +24,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return group;
         }
 
-        static async Task<Ok<List<GenreDTO>>> GetGenres(IGenresRepositories repository, IMapper mapper)
+        static async Task<Ok<List<GenreDTO>>> GetGenres(IGenresRepository repository, IMapper mapper)
         {
             var genres = await repository.GetAll();
             //var genreDTO = genres.Select(genre => new GenreDTO { Id = genre.Id, Name = genre.Name }).ToList();
@@ -32,7 +32,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return TypedResults.Ok(genreDTO);
         }
 
-        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById(int id, IGenresRepositories repository, IMapper mapper)
+        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById(int id, IGenresRepository repository, IMapper mapper)
         {
             var genre = await repository.GetById(id);
 
@@ -53,7 +53,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
 
         static async Task<Created<GenreDTO>> Create(
             CreateGenreDTO createGenreDTO, 
-            IGenresRepositories repository, 
+            IGenresRepository repository, 
             IOutputCacheStore outputCacheStore,
             IMapper mapper
             )
@@ -77,7 +77,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
         static async Task<Results<NotFound, NoContent>> Update(
             int id, 
             CreateGenreDTO createGenreDTO, 
-            IGenresRepositories repository, 
+            IGenresRepository repository, 
             IOutputCacheStore outputCacheStore,
             IMapper mapper
             )
@@ -102,7 +102,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
 
         static async Task<Results<NotFound, NoContent>> Delete(
             int id, 
-            IGenresRepositories repository, 
+            IGenresRepository repository, 
             IOutputCacheStore outputCacheStore)
         {
             var exists = await repository.Exists(id);
