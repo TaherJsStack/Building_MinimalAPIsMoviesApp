@@ -69,6 +69,7 @@ app.MapGet("/", () => "ConfigName");
 
 app.MapGroup("/genres").MapGenres();
 app.MapGroup("/actors").MapActors();
+app.MapGroup("/movies").MapMovies();
 
 // Middleware Zone - END
 
