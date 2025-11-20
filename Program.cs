@@ -1,6 +1,7 @@
 using Building_MinimalAPIsMoviesApp;
 using Building_MinimalAPIsMoviesApp.Endpoints;
 using Building_MinimalAPIsMoviesApp.Repositories;
+using Building_MinimalAPIsMoviesApp.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,6 +42,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGenresRepository, GenresRepository>();
 builder.Services.AddScoped<IActorsRepository, ActorsRepository>();
 
+builder.Services.AddTransient<IFileStorage, LocalFileStorage>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddAutoMapper(typeof(Program));
 
 // Services Zone - END
@@ -53,6 +57,8 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI(c => {});
 //}
+
+app.UseStaticFiles();
 
 app.UseCors();
 
