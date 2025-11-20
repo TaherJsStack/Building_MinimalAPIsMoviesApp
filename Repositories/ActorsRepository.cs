@@ -19,8 +19,32 @@ namespace Building_MinimalAPIsMoviesApp.Repositories
 
         public async Task<Actor?> GetById(int id)
         {
-            return await _context.Actors.FirstOrDefaultAsync(actor => actor.Id == id);
+            return await _context.Actors.AsNoTracking().FirstOrDefaultAsync(actor => actor.Id == id);
         }
+
+        public async Task<int> Create(Actor actor) 
+        { 
+            _context.Actors.Add(actor);
+            await _context.SaveChangesAsync();
+            return actor.Id;
+        }
+
+        public async Task<bool> Exist(int id) 
+        { 
+            return await _context.Actors.AnyAsync(actor => actor.Id == id);
+        }
+
+        public async Task Update(Actor actor) 
+        {
+            _context.Update(actor);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(int id) 
+        {
+            await _context.Actors.Where(actor => actor.Id == id).ExecuteDeleteAsync();
+        }
+
 
     }
 }
