@@ -116,14 +116,16 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
         static async Task<Results<NotFound, NoContent>> Delete(
             int id,
             IActorsRepository repository,
-            IOutputCacheStore outputCacheStore)
+            IOutputCacheStore outputCacheStore,
+            IFileStorage fileStorage)
         {
-            var exists = await repository.GetById(id);
-            if (exists is null)
+            var actor = await repository.GetById(id);
+            if (actor is null)
             {
                 return TypedResults.NotFound();
             }
             await repository.Delete(id);
+            await fileStorage.Delete(actor.Picture, _container);
             await outputCacheStore.EvictByTagAsync("actors-get", default);
             return TypedResults.NoContent();
         }
