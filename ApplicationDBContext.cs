@@ -22,7 +22,6 @@ namespace Building_MinimalAPIsMoviesApp
                 .Entity<Actor>()
                 .Property(p => p.Name)
                 .HasMaxLength(150);
-
             modelBuilder
                 .Entity<Actor>()
                 .Property(p => p.Picture)
@@ -32,16 +31,16 @@ namespace Building_MinimalAPIsMoviesApp
                 .Entity<Movie>()
                 .Property(m => m.Title)
                 .HasMaxLength(250);
-
             modelBuilder
-            .Entity<Movie>()
-            .Property(m => m.Poster)
-            .IsUnicode();
+                .Entity<Movie>()
+                .Property(m => m.Poster)
+                .IsUnicode();
 
         }
 
         public DbSet<Genre> Genres { get; set; } 
         public DbSet<Actor> Actors { get; set; }
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }
