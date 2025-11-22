@@ -16,8 +16,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
         {
             group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("comments-get"));
             group.MapGet("/{id:int}", GetById);
-            group.MapPost("/", Create).DisableAntiforgery();
-            group.MapPut("/{id:int}", Update).DisableAntiforgery();
+            group.MapPost("/", Create);
+            group.MapPut("/{id:int}", Update);
             group.MapDelete("/{id:int}", Delete);
 
             return group;
