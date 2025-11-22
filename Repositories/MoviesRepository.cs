@@ -24,8 +24,11 @@ namespace Building_MinimalAPIsMoviesApp.Repositories
 
         public async Task<Movie?> GetById(int id)
         {
-            return await _context.Movies.AsNoTracking().FirstOrDefaultAsync(movie => movie.Id == id);
+            return await _context
+                            .Movies
                             .Include(movie => movie.Comments)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(movie => movie.Id == id);
         }
 
         public async Task<List<Movie>> GetByName(string name)
