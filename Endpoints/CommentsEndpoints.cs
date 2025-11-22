@@ -15,7 +15,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
         public static RouteGroupBuilder MapComments(this RouteGroupBuilder group)
         {
             group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("comments-get"));
-            group.MapGet("/{id:int}", GetById);
+            group.MapGet("/{id:int}", GetById).WithName("CommentsById");
             group.MapPost("/", Create);
             group.MapPut("/{id:int}", Update);
             group.MapDelete("/{id:int}", Delete);
@@ -68,7 +68,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return TypedResults.Ok(commentDTO);
         }
 
-        static async Task<Results<Created<CommentDTO>, NotFound>> Create(
+        //static async Task<Results<Created<CommentDTO>, NotFound>> Create(
+        static async Task<Results<CreatedAtRoute<CommentDTO>, NotFound>> Create(
             int movieId,
             CreateCommentDTO createCommentDTO,
             ICommentsRepository repository,
@@ -89,7 +90,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             var id = await repository.Create(comment);
             await outputCacheStore.EvictByTagAsync("comments-get", default);
             var commentDTO = mapper.Map<CommentDTO>(comment);
-            return TypedResults.Created($"/comments/{id}", commentDTO);
+            //return TypedResults.Created($"/comments/{id}", commentDTO);
+            return TypedResults.CreatedAtRoute(commentDTO, "CommentsById", new {id, movieId});
 
         }
 
@@ -108,28 +110,35 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             {
                 return TypedResults.NotFound();
             }
-            var movieDB = await repository.GetById(id);
-            if (movieDB is null)
+            var commentDB = await repository.GetById(id);
+            if (commentDB is null)
             {
                 return TypedResults.NotFound();
             }
 
-            var movieForUpdate = mapper.Map<Comment>(createCommentDTO);
-            movieForUpdate.Id = id;
-            movieForUpdate.MovieId = movieId;
+            var commentForUpdate = mapper.Map<Comment>(createCommentDTO);
+            commentForUpdate.Id = id;
+            commentForUpdate.MovieId = movieId;
 
-            await repository.Update(movieForUpdate);
+            await repository.Update(commentForUpdate);
             await outputCacheStore.EvictByTagAsync("comments-get", default);
             return TypedResults.NoContent();
 
         }
 
         static async Task<Results<NotFound, NoContent>> Delete(
+            int movieId,
             int id,
             ICommentsRepository repository,
+            IMoviesRepository moviesRepository,
             IOutputCacheStore outputCacheStore,
             IFileStorage fileStorage)
         {
+
+            if (!await moviesRepository.Exists(movieId))
+            {
+                return TypedResults.NotFound();
+            }
             var comment = await repository.GetById(id);
             if (comment is null)
             {
