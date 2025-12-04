@@ -162,29 +162,33 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
 
         static async Task<Results<NoContent, NotFound, BadRequest<string>>> AssignActors(
             int id,
-            List<AssignActorMovieDTO> actorDTO,
-            List<int> genresIds,
+            List<AssignActorMovieDTO> actorsDTO,
             IMoviesRepository repository,
             IActorsRepository actorRepository,
             IMapper mapper
         )
-        { 
-            var existingActors= new List<int>();
-            var actorsIds = actorDTO.Select(actor => actor.ActorId).ToList();
+        {
+            if (!await repository.Exists(id))
+            {
+                return TypedResults.NoContent();
+            }
 
-            if (actorDTO.Count != 0) 
-            { 
+            var existingActors = new List<int>();
+            var actorsIds = actorsDTO.Select(actor => actor.ActorId).ToList();
+
+            if (actorsDTO.Count != 0)
+            {
                 existingActors = await actorRepository.Exist(actorsIds);
             }
 
-            if (existingActors.Count != actorDTO.Count) 
-            { 
+            if (existingActors.Count != actorsDTO.Count)
+            {
                 var nonExistingActors = actorsIds.Except(existingActors);
                 var nonExistingActorsCVS = string.Join(",", nonExistingActors);
                 return TypedResults.BadRequest($"the actors of id {nonExistingActorsCVS} does not exist. ");
             }
 
-            var actors = mapper.Map<List<ActorMovie>>(actorDTO);
+            var actors = mapper.Map<List<ActorMovie>>(actorsDTO);
             await repository.Assign(id, actors);
             return TypedResults.NoContent();
         }
