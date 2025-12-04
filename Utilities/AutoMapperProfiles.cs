@@ -22,7 +22,7 @@ namespace Building_MinimalAPIsMoviesApp.Utilities
             CreateMap<Comment, CommentDTO>();
             CreateMap<CreateCommentDTO, Comment>();
 
-            CreateMap<AssignActorMovieDTO, ActorDTO>();
+            CreateMap<AssignActorMovieDTO, ActorMovie>();
 
 
         }
