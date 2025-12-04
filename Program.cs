@@ -2,6 +2,7 @@ using Building_MinimalAPIsMoviesApp;
 using Building_MinimalAPIsMoviesApp.Endpoints;
 using Building_MinimalAPIsMoviesApp.Repositories;
 using Building_MinimalAPIsMoviesApp.Services;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,6 +49,8 @@ builder.Services.AddTransient<IFileStorage, LocalFileStorage>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Services Zone - END
 
