@@ -2,6 +2,7 @@
 using Building_MinimalAPIsMoviesApp.DTOs;
 using Building_MinimalAPIsMoviesApp.Entities;
 using Building_MinimalAPIsMoviesApp.Repositories;
+using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -51,13 +52,22 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return TypedResults.Ok(genreDTO);
         }
 
-        static async Task<Created<GenreDTO>> Create(
-            CreateGenreDTO createGenreDTO, 
-            IGenresRepository repository, 
+        static async Task<Results<Created<GenreDTO>, ValidationProblem>> Create(
+            CreateGenreDTO createGenreDTO,
+            IGenresRepository repository,
             IOutputCacheStore outputCacheStore,
-            IMapper mapper
+            IMapper mapper,
+            IValidator<CreateGenreDTO> validator
             )
         {
+
+            var validatorResult = await validator.ValidateAsync(createGenreDTO);
+
+            if (!validatorResult.IsValid)
+            {
+                return TypedResults.ValidationProblem(validatorResult.ToDictionary());
+            }
+
             //var genre = new Genre
             //{
             //    Name = createGenreDTO.Name,
