@@ -25,7 +25,6 @@ namespace Building_MinimalAPIsMoviesApp.Repositories
             //return await _context.Genres.OrderByDescending(genre => genre.Name).ToListAsync();
         }
 
-
         public async Task<Genre?> GetById(int id)
         {
             return await _context.Genres.FirstOrDefaultAsync(genre => genre.Id == id);
@@ -34,6 +33,11 @@ namespace Building_MinimalAPIsMoviesApp.Repositories
         public async Task<bool> Exists(int id)
         {
             return await _context.Genres.AnyAsync(genre => genre.Id == id);
+        }
+
+        public async Task<bool> Exists(int id, string name)
+        {
+            return await _context.Genres.AnyAsync(genre => genre.Id != id && genre.Name == name);
         }
 
         public async Task<List<int>> Exists(List<int> ids) 
