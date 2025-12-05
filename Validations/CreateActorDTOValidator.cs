@@ -10,16 +10,16 @@ namespace Building_MinimalAPIsMoviesApp.Validations
         {
             RuleFor(p => p.Name)
                 .NotEmpty()
-                .WithMessage("Custom Not Empty Message Error For {PropertyName}")
+                .WithMessage(ValidationUtilities.NotEmptyMessage)
                 .MaximumLength(150)
-                .WithMessage("Custom Maximum Length Message Error For {PropertyName}");
+                .WithMessage(ValidationUtilities.MaximumLengthMessage);
 
 
             var minimumDate = new DateTime(1990, 1, 1);
 
             RuleFor(p => p.DateOfBirth)
                 .GreaterThanOrEqualTo(minimumDate)
-                .WithMessage("Custom Not Empty Message Error For {PropertyName}");
+                .WithMessage(ValidationUtilities.GreaterThanOrEqualToMessage);
 
         }
 
