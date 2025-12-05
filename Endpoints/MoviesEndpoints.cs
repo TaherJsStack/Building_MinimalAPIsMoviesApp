@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Building_MinimalAPIsMoviesApp.DTOs;
 using Building_MinimalAPIsMoviesApp.Entities;
+using Building_MinimalAPIsMoviesApp.Filters;
 using Building_MinimalAPIsMoviesApp.Repositories;
 using Building_MinimalAPIsMoviesApp.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -19,15 +20,19 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             group.MapGet("/", GetMovies).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("movies-get"));
             group.MapGet("/{id:int}", GetById);
             group.MapGet("/GetByName/{name}", GetByName);
-            group.MapPost("/", Create).DisableAntiforgery();
-            group.MapPut("/{id:int}", Update).DisableAntiforgery();
+            group.MapPost("/", Create).DisableAntiforgery().AddEndpointFilter<ValidationFilter<CreateMovieDTO>>();
+            group.MapPut("/{id:int}", Update).DisableAntiforgery().AddEndpointFilter<ValidationFilter<CreateMovieDTO>>();
             group.MapDelete("/{id:int}", Delete);
             group.MapPost("/{id:int}/assignGenres", AssignGernres);
             group.MapPost("/{id:int}/assignActors", AssignActors);
             return group;
         }
 
-        static async Task<Ok<List<MovieDTO>>> GetMovies(IMoviesRepository repository, IMapper mapper, int Page = 1, int recordsPerPage = 10)
+        static async Task<Ok<List<MovieDTO>>> GetMovies(
+            IMoviesRepository repository,
+            IMapper mapper,
+            int Page = 1,
+            int recordsPerPage = 10)
         {
             var pagination = new PaginationDTO
             {
@@ -39,7 +44,10 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return TypedResults.Ok(movieDTO);
         }
 
-        static async Task<Results<Ok<MovieDTO>, NotFound>> GetById(int id, IMoviesRepository repository, IMapper mapper)
+        static async Task<Results<Ok<MovieDTO>, NotFound>> GetById(
+            int id,
+            IMoviesRepository repository,
+            IMapper mapper)
         {
             var movie = await repository.GetById(id);
             if (movie == null)
@@ -50,7 +58,10 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             return TypedResults.Ok(movieDTO);
         }
 
-        static async Task<Results<Ok<List<MovieDTO>>, NotFound>> GetByName(string name, IMoviesRepository repository, IMapper mapper)
+        static async Task<Results<Ok<List<MovieDTO>>, NotFound>> GetByName(
+            string name,
+            IMoviesRepository repository,
+            IMapper mapper)
         {
             var movies = await repository.GetByName(name);
             var movieDTO = mapper.Map<List<MovieDTO>>(movies);
@@ -136,24 +147,24 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             IMoviesRepository repository,
             IGenresRepository genresRepository,
             IOutputCacheStore outputCacheStore
-        ) 
+        )
         {
-            if (! await repository.Exists(id))
+            if (!await repository.Exists(id))
             {
                 return TypedResults.NoContent();
             }
 
             var existingGenres = new List<int>();
-            if ( genresIds.Count != 0)
+            if (genresIds.Count != 0)
             {
                 existingGenres = await genresRepository.Exists(genresIds);
             }
 
-            if (genresIds.Count != existingGenres.Count) 
+            if (genresIds.Count != existingGenres.Count)
             {
                 var nonExistingGenres = genresIds.Except(existingGenres);
                 var nonExistingGenresCSV = string.Join(",", nonExistingGenres);
-                return TypedResults.BadRequest($"the genres of id { nonExistingGenresCSV} does not exist. ");
+                return TypedResults.BadRequest($"the genres of id {nonExistingGenresCSV} does not exist. ");
             }
 
             await repository.Assign(id, existingGenres);
