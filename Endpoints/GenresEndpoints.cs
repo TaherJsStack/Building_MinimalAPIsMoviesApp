@@ -89,7 +89,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             CreateGenreDTO createGenreDTO, 
             IGenresRepository repository, 
             IOutputCacheStore outputCacheStore,
-            IMapper mapper
+            IMapper mapper,
+            IValidator<CreateGenreDTO> validator
             )
         {
             var exists = await repository.Exists(id);
