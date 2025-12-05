@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Building_MinimalAPIsMoviesApp.DTOs;
 using Building_MinimalAPIsMoviesApp.Entities;
+using Building_MinimalAPIsMoviesApp.Filters;
 using Building_MinimalAPIsMoviesApp.Migrations;
 using Building_MinimalAPIsMoviesApp.Repositories;
 using Building_MinimalAPIsMoviesApp.Services;
@@ -16,8 +17,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
         {
             group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("comments-get"));
             group.MapGet("/{id:int}", GetById).WithName("CommentsById");
-            group.MapPost("/", Create);
-            group.MapPut("/{id:int}", Update);
+            group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>();
+            group.MapPut("/{id:int}", Update).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>();
             group.MapDelete("/{id:int}", Delete);
 
             return group;
@@ -27,8 +28,8 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             int movieId,
             ICommentsRepository repository,
             IMoviesRepository moviesRepository,
-            IMapper mapper, 
-            int Page = 1, 
+            IMapper mapper,
+            int Page = 1,
             int recordsPerPage = 10)
         {
 
@@ -42,14 +43,14 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
                 Page = Page,
                 RecordesPerPage = recordsPerPage
             };
-            var comments = await repository.GetAll(movieId,pagination);
+            var comments = await repository.GetAll(movieId, pagination);
             var commentDTO = mapper.Map<List<CommentDTO>>(comments);
             return TypedResults.Ok(commentDTO);
         }
 
         static async Task<Results<Ok<CommentDTO>, NotFound>> GetById(
             int movieId,
-            int id, 
+            int id,
             ICommentsRepository repository,
             IMoviesRepository moviesRepository,
             IMapper mapper)
@@ -79,7 +80,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             )
         {
 
-            if (! await moviesRepository.Exists(movieId)) 
+            if (!await moviesRepository.Exists(movieId))
             {
                 return TypedResults.NotFound();
             }
@@ -91,7 +92,7 @@ namespace Building_MinimalAPIsMoviesApp.Endpoints
             await outputCacheStore.EvictByTagAsync("comments-get", default);
             var commentDTO = mapper.Map<CommentDTO>(comment);
             //return TypedResults.Created($"/comments/{id}", commentDTO);
-            return TypedResults.CreatedAtRoute(commentDTO, "CommentsById", new {id, movieId});
+            return TypedResults.CreatedAtRoute(commentDTO, "CommentsById", new { id, movieId });
 
         }
 
